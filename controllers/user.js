@@ -35,7 +35,6 @@ const createUser = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-    debugger;
     User.find({username:req.body.username})
     .exec()
     .then(user=>{
