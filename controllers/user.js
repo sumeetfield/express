@@ -20,6 +20,9 @@ const createUser = async (req, res) => {
             user.phone = req.body.phone;
             user.email = req.body.email;
             user.userType = req.body.userType;
+            user.caste=req.body.caste;
+            user.gender= req.body.gender;
+            user.occupation=req.body.occupation;
             var userData = new User(user);
             userData.save()
                 .then(result => {
@@ -78,5 +81,37 @@ const loginUser = async (req, res) => {
     })
 }
 
+const matchUser = async (req, res) => {
+    // Extract the user's preferences from the request body
+    const { age, gender, religion, caste, subcaste, education, occupation, income, location, interests } = req.body.preferences
+  
+    // Find users who match the preferences
+    const matches = await User.find({
+      age: { $gte: age.min, $lte: age.max },
+      gender: gender,
+      religion: religion,
+      caste: caste,
+      subcaste: subcaste,
+      education: education,
+      occupation: occupation,
+      income: { $gte: income.min, $lte: income.max },
+      'location.country': location.country,
+      'location.state': location.state,
+      'location.city': location.city,
+      interests: { $in: interests }
+    }).exec()
+  
+    // If no matches are found, return an error
+    if (matches.length < 1) {
+      return res.status(404).json({
+        msg: 'No matches found'
+      })
+    }
+  
+    // Return the list of matches
+    return res.status(200).json(matches)
+  }
+  
 
-module.exports = { createUser, loginUser };
+
+module.exports = { createUser, loginUser,matchUser };
